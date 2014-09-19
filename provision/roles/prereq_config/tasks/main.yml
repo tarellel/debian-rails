@@ -1,0 +1,20 @@
+---
+  - include: sudoers.yml
+  - include: timezone.yml
+  - include: motd.yml
+  - include: inittab.yml
+
+
+# update resolv.conf to use serveral DNS services
+  - name: Override resolv
+    copy: src=resolv.conf dest=/etc/resolv.conf
+    sudo: true
+
+
+  - name: Force nano to display line numbers
+    lineinfile: >
+      dest=/etc/nanorc
+      regexp='^# set const'
+      line='set const'
+      state=present
+    sudo: true

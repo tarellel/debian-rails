@@ -1,0 +1,26 @@
+# https://github.com/fabaff/fedora-ansible/blob/master/tasks/motd.yml
+# http://www.tecmint.com/protect-ssh-logins-with-ssh-motd-banner-messages/
+---
+  - name: motd - login message
+    template:
+      src=motd.j2
+      dest=/etc/motd
+      owner=root
+      group=root
+      mode=0644
+    sudo: true
+    tags: motd
+
+# issue.net https://coderwall.com/p/lfdgaa
+# message displayed when ssh|shell login is denied
+  - name: issue.net
+    copy: src=issue.net dest=/etc/issue.net
+    sudo: true
+    tags: motd
+
+
+# for some reason changing /etc/issue casuses an error upon vagrant up
+#  - name: /etc/issue
+#    copy: src=issue.net dest=/etc/issue
+#    sudo: true
+#    tags: motd

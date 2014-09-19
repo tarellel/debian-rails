@@ -1,0 +1,55 @@
+# securing Debian users http://www.server-world.info/en/note?os=Debian_7.0&p=password
+---
+  # sudo chage -M 180 {{ user }}
+  - name: Set New Password expiration date for {{ user }}
+    shell: "chage -M {{ PASS_EXPIRE_DAYS }} {{ user }}"
+    sudo: true
+
+  - name: Set Password expiration length for (days allowed)
+    lineinfile: >
+      dest=/etc/login.defs
+      regexp="^PASS_MAX_DAYS"
+      line="PASS_MAX_DAYS   {{ PASS_EXPIRE_DAYS }}"
+      state=present
+    sudo: true
+# 180 == 6months
+
+  - name: Require user to use password for X number of days
+    lineinfile: >
+      dest=/etc/login.defs
+      regexp="^PASS_MIN_DAYS"
+      line="PASS_MIN_DAYS   {{ PASS_MIN_DAYS }}"
+      state=present
+    sudo: true
+
+
+
+#### May just use a copy of /etc/pam.d/common-password instead of modifing it multiple times
+# http://www.server-world.info/en/note?os=Debian_7.0&p=password
+
+  # install to use for password module enforcement
+  - name: Install pam password module
+    action: apt name=libpam-cracklib state=present
+    sudo: true
+
+
+# Set password polocies
+# http://xmodulo.com/2013/12/set-password-policy-linux.html
+# http://www.server-world.info/en/note?os=Debian_7.0&p=password
+##### used in password policy #####
+# ucredit=uppercase
+# lcredit=losercase
+# dcredit=digital
+# ocredit=symbol
+#####
+  - name: Limit password reuse and ensure password requirements
+    copy: src=common-password dest=/etc/pam.d/common-password
+    sudo: true
+
+  - name: Lock user account after [X] amount of fails
+    copy: src=common-auth dest=/etc/pam.d/common-auth
+    sudo: true
+
+  - name: Apply login tallys to accounts
+    copy: src=common-account dest=/etc/pam.d/common-account
+    sudo: true

@@ -1,0 +1,3 @@
+---
+  home_dir: "/home/{{ user }}"
+  rbenv_dir: "{{ home_dir }}/.rbenv"

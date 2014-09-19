@@ -1,0 +1,32 @@
+# redirect to http://domain.tdl if www.domain.tdl is requested
+#server {
+#  server_name www.{{ domain }};
+#  return 301 $scheme://{{ domain }}$request_uri;
+#}
+
+ server {
+  listen   80; ## listen for ipv4; this line is default and implied
+  #listen   [::]:80 default ipv6only=on; ## listen for ipv6
+  charset utf-8;
+
+  root /var/www/{{ app }}/public;
+
+
+  # Make site accessible from http://localhost/
+  server_name localhost;
+  # Uncomment when using a valid URL
+  #server_name {{ domain }};
+  passenger_enabled on;
+
+  # prevent loadtime if app has been idle for a period of time
+  rails_app_spawner_idle_time 0;
+  #passenger_max_preloader_idle_time 0;
+
+
+  # Cache assets
+  location ^~ /assets/ {
+    gzip_static on;
+    expires max;
+    add_header Cache-Control public;
+  }
+}

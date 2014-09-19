@@ -1,0 +1,61 @@
+---
+  - name: AIDE | Determine if AIDE is installed
+    shell: 'aide --version'
+    sudo: true
+    register: aide_installed
+    changed_when: false
+    ignore_errors: true
+
+
+  - name: 'AIDE | Install Advanced Intrusion Detection Environment (AIDE)'
+    action: apt name=aide state=present
+    sudo: true
+    when: aide_installed|failed
+    # And wait.....
+
+
+  # Default: Checksums = sha256+sha512+rmd160+haval+gost+crc32+tiger
+  - name: AIDE | Adjust AIDE checksums to reduce scan load
+    lineinfile: >
+      dest='/etc/aide/aide.conf'
+      regexp=^Checksums
+      line='Checksums = sha512+tiger'
+      state=present
+    sudo: true
+    when: aide_installed|failed
+
+################################################################################
+##### Initialize and Setup AIDE file integrity database
+################################################################################
+
+  # alternative to using: aide -init
+  - name: AIDE | Initialize file integrity database
+    shell: 'aideinit'
+    sudo: true
+    when: aide_installed|failed
+
+
+  - name: AIDE | Move old preconfigured Database
+    shell: 'mv /var/lib/aide/aide.db /var/lib/aide/aide.db.old'
+    sudo: true
+    when: aide_installed|failed
+
+  - name: AIDE | Move newest database to current
+    shell: 'mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db'
+    sudo: true
+    when: aide_installed|failed
+
+
+  # alternative to aide --check which needs wrapper to work on a debian system
+  - name: AIDE | Check and verify files for changes
+    shell: 'aide.wrapper --check'
+    sudo: true
+    ignore_errors: true
+    when: aide_installed|failed
+
+
+  - name: AIDE | Update AIDE database of any changes
+    shell: 'aide.wrapper --update'
+    sudo: true
+    ignore_errors: true
+    when: aide_installed|failed

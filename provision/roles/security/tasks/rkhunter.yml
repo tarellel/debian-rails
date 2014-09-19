@@ -1,0 +1,40 @@
+# https://github.com/M4nu/ansible/blob/master/rkhunter/main.yml
+---
+  # let CRON auto update, because the updates output seems to crash ansible
+  #- name: rkhunter | Update rkhunter databases files
+  #  shell: 'rkhunter --update'
+  #  sudo: true
+  #  tags: rkhuner
+
+  - name: rkhunter | Update rkhunter to not flag installed/verified apps
+    command: 'rkhunter --propupd'
+    sudo: true
+    tags: rkhunter
+
+  - debug: msg="To update rkhunter rootkit database [khunter --update]"
+
+
+  - name: rkhunter | configure
+    lineinfile: >
+      dest=/etc/rkhunter.conf
+      regexp="{{ item.regexp }}"
+      line="{{ item.line }}"
+      backup=yes
+    with_items:
+      - { regexp: ALLOW_SSH_ROOT_USER=, line: "ALLOW_SSH_ROOT_USER=no" }
+      - { regexp: ALLOWHIDDENDIR=\"/etc/.java\", line: ALLOWHIDDENDIR=\"/etc/.java\" }
+      - { regexp: SCRIPTWHITELIST=/usr/bin/unhide.rb, line: SCRIPTWHITELIST=/usr/bin/unhide.rb }
+    sudo: true
+    tags: rkhunter
+
+
+  # initiate daily cronjob to scan for rootkits
+  - name: rkhunter | configure cron
+    lineinfile: dest=/etc/default/rkhunter regexp="^CRON_DAILY_RUN" line='CRON_DAILY_RUN="true"' backup=yes
+    tags: rkhunter
+    sudo: true
+
+
+  # no need to add contab, upon install it should be added to daily/weekly automatically
+  # 15 04 * * * /usr/bin/rkhunter --cronjob --update --quiet
+  - debug: msg='Adjust MAIL-ON-WARNING="your_user@domain.com" to your email address to get warnings'

@@ -1,0 +1,24 @@
+# monit filter: https://github.com/fail2ban/fail2ban/blob/master/config/filter.d/monit.conf
+# Fail2Ban configuration file for M/Monit ( mmonit )
+# Author: eXtremeSHOK.com
+# $Revision: 101 $
+
+[Definition]
+
+# Option: failregex
+# Notes.: regex to match the password failure messages in the logfile. The
+# host must be matched by a group named "host". The tag "" can
+# be used for standard IP/hostname matching and is only an alias for
+# (?:::f{4,6}:)?(?P\S+)
+# Values: TEXT
+#
+
+#failregex = .*Unauthorized, authentication failed for \[<HOST>\].*
+failregex = ^\[[A-Z]+\s+\]\s*error\s*:\s*Warning:\s+Client '<HOST>' supplied unknown user '\w+' accessing monit httpd$
+            ^\[[A-Z]+\s+\]\s*error\s*:\s*Warning:\s+Client '<HOST>' supplied wrong password for user '\w+' accessing monit httpd$
+
+# Option: ignoreregex
+# Notes.: regex to ignore. If this regex matches, the line is ignored.
+# Values: TEXT
+#
+ignoreregex =

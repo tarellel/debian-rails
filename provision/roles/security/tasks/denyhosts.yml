@@ -1,0 +1,4 @@
+---
+  - name: Install denyhosts
+    action: apt name=denyhosts state=present
+    sudo: true

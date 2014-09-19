@@ -1,0 +1,6 @@
+---
+- name: Restart ssh
+  action: service name=ssh state=restarted enabled=yes
+  sudo: true
+  tags:
+    - ssh

@@ -1,0 +1,9 @@
+# https://github.com/M4nu/ansible/blob/master/postfix/main.yml
+---
+  - name: Reload postfix
+    service: name=postfix state=reloaded
+    sudo: true
+
+  - name: Restart postfix
+    service: name=postfix state=restarted enabled=yes
+    sudo: true

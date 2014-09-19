@@ -1,0 +1,78 @@
+### SSH HELP
+#!!! https://github.com/hostmaster/ansible-digitalocean-bootstrap/blob/master/tasks/security.yml
+# Security measures for ssh - https://github.com/hostmaster/ansible-digitalocean-bootstrap/blob/master/tasks/security.yml
+# https://help.ubuntu.com/community/SSH/OpenSSH/Configuring
+---
+  - name: Ensure OpenSSH is installed
+    action: apt name={{item}} state=latest
+    sudo: yes
+    with_items:
+      - openssh-client
+      - openssh-server
+    notify:
+      - Restart ssh
+    tags:
+      - ssh
+
+
+  # src: https://github.com/pjan/the-ansibles/blob/master/roles/ssh/tasks/main.yml
+  - name: SSH | Update the ssh security configuration (/etc/ssh/sshd_config)
+    template: src=sshd_config.j2 dest=/etc/ssh/sshd_config owner=root group=root mode=0644
+    sudo: true
+    tags:
+      - ssh
+    notify: Restart ssh
+
+
+  # add AllowUsers to sshd_config
+  - name: Add and configure AllowUsers to sshd_config
+    lineinfile: >
+      dest=/etc/ssh/sshd_config
+      regexp=AllowUsers
+      line="AllowUsers {{ user }} {{ deploy_username }}"
+    sudo: true
+    tags:
+      - ssh
+    notify: Restart ssh
+
+
+  ########## Start ##########
+  ### REMOVE FOR PRODUCTION
+  - name: Delete default server ssh hosts/keys
+    shell: 'rm -rf /etc/ssh/ssh_host_*'
+    sudo: true
+    tags:
+      - ssh
+
+  - name: Re-generate server ssh keys
+    command: dpkg-reconfigure openssh-server
+    notify: Restart ssh
+    sudo: true
+  ########## Stop ##########
+
+
+    # generate sshkey
+    # $: ssh-keygen -t rsa
+
+
+  - name: Configure firewall for SSH
+    ufw: rule=allow name=OpenSSH
+    when: portknocking != true
+    sudo: true
+    tags:
+      - ssh
+      - firewall
+
+  - name: Limit amount of failed connections to designed port
+    ufw: rule=limit port=ssh proto=tcp
+    when: portknocking != true
+    sudo: true
+    tags:
+      - firewall
+
+  - name: Enable firewall
+    ufw: state=enabled
+    sudo: true
+    notify: Restart ssh
+    tags:
+      - firewall

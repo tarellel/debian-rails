@@ -1,0 +1,8 @@
+# HOWTO Use: http://linoxide.com/how-tos/lynis-security-tool-audit-hardening-linux/
+---
+  - name: lynis | Install Lynis security auditor
+    action: apt name=lynis state=latest
+    sudo: true
+    tags: lynis
+
+  # sudo lynis -c -Q --auditor "Username"

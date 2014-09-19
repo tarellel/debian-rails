@@ -1,0 +1,11 @@
+---
+- name: Update APT package cache
+  apt: update_cache=yes cache_valid_time=3600
+  sudo: true
+  # apt: upgrade=dist update_cache=yes cache_valid_time=3600
+
+
+- name: Upgrade existing packages
+  sudo: true
+  apt: upgrade=dist
+  #apt: upgrade=safe

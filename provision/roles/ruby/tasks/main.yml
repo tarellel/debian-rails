@@ -1,0 +1,26 @@
+# !!! https://github.com/dodecaphonic/ansible-rails-app/blob/master/roles/webserver/tasks/ruby.yml
+# https://github.com/chadoh/publishist/blob/master/ansible/tasks/ruby.yml
+# https://github.com/jcftang/ansible-hydra/blob/master/roles/rvm-passenger/tasks/precise.yml
+# https://github.com/dpausp/ansible-playbook-redmine/blob/master/playbook-redmine/roles/redmine/tasks/ruby.yml
+---
+  - name: Install Ruby
+    action: apt name=ruby state=latest
+    sudo: true
+    tags: ruby
+
+  - name: Block Gem Documentation
+    copy: src=gemrc dest=~/.gemrc
+
+  - name: Block system wide gem documentation
+    copy: src=gemrc dest=/etc/gemrc
+    sudo: true
+
+  - name: Install libraries required for noko-giri
+    action: apt name={{ item }} state=latest
+    with_items:
+      - libxslt-dev
+      - libxml2-dev
+    sudo: true
+
+
+  - include: rbenv.yml

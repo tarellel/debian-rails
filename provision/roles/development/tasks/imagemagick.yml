@@ -1,0 +1,22 @@
+---
+  # various required by IM : https://github.com/hnakamur/ansible-playbooks/blob/master/roles/imagemagick/tasks/main.yml
+  # apt-get install libperl-dev gcc libjpeg62-dev libbz2-dev libtiff4-dev libwmf-dev libz-dev libpng12-dev libx11-dev libxt-dev libxext-dev libxml2-dev libfreetype6-dev liblcms1-dev libexif-dev perl libjasper-dev libltdl3-dev graphviz gs-gpl pkg-config
+  - name: Install dependent ImageMagicK Packages
+    action: apt name={{ item }} state=present
+    sudo: true
+    with_items:
+      - libbz2-dev
+      - libfontconfig-dev
+      - libfreetype6-dev
+      - libgif-dev
+      - libjpeg-dev
+      - libpng-dev
+      - libtiff-dev
+      - libxml2-dev
+      - libxslt-dev
+      - zlib1g-dev
+      - libexif-dev # image EXIF
+
+  - name: Install ImageMagick Image Processing library
+    action: apt name=imagemagick state=present
+    sudo: true

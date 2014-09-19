@@ -1,0 +1,11 @@
+# http://requiremind.com/deploying-a-rails-app-on-your-own-server-the-ultimate-guide/
+---
+  - name: Ensure Network security
+    copy: src=sysctl.conf dest=/etc/sysctl.conf
+    sudo: true
+
+
+  # reload sysctl to reload network control/configuration
+  - name: Reload network Configuration
+    shell: 'sysctl -p'
+    sudo: true

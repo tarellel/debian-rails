@@ -1,0 +1,5 @@
+---
+- include: nginx.yml
+
+# https://github.com/mortik/ansible-nginx-rails/blob/master/tasks/main.yml
+# setup SSL if protocol == https

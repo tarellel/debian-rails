@@ -1,0 +1,44 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# https://github.com/smdahlen/vagrant-digitalocean
+Vagrant.configure('2') do |config|
+
+  config.ssh.forward_agent = true
+  config.ssh.username = "vagrant"
+
+  # keep on true
+  config.vm.synced_folder '.', '/vagrant', :disabled => false
+  config.vm.hostname = "testbox"
+
+  config.vm.provider :digital_ocean do |provider, override|
+    override.ssh.private_key_path = '~/.ssh/id_rsa'
+    override.vm.box = 'digital_ocean'
+    override.vm.box_url = "https://github.com/smdahlen/vagrant-digitalocean/raw/master/box/digital_ocean.box"
+
+
+    # sample is SHA256 of: lorem ipsum
+    provider.token = '5e2bf57d3f40c4b6df69daf1936cb766f832374b4fc0259a7cbff06e2f70f269'
+    provider.image = "Debian 7.0 x64"
+    provider.region = 'nyc2'
+    provider.size = '512mb'
+    #sprovider.size = '2gb'
+
+    # setup additional user [ other than root] = config.ssh.username
+    provider.setup = true
+  end
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.host_key_checking = false
+    ansible.playbook = "provision/playbook.yml"
+
+    #ansible.host_key_checking = false
+    ansible.extra_vars = { ansible_ssh_user: 'vagrant',
+                 ansible_connection: 'ssh',
+                 ansible_ssh_args: '-o ForwardAgent=yes'}
+   ansible.raw_ssh_args = ['-o UserKnownHostsFile=/dev/null']
+
+    #ansible.verbose = 'v'
+    #ansible.verbose = '-vvv'
+  end
+end

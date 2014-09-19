@@ -1,0 +1,16 @@
+- name: Install Git
+  action: apt name=git state=present
+  sudo: true
+
+
+- include: imagemagick.yml
+- include: nodejs.yml
+- include: memcached.yml
+- include: postfix.yml
+
+
+- name: Config git username
+  shell: 'git config --global user.name "{{ git_username }}"'
+
+- name: Config git email
+  shell: 'git config --global user.email {{ git_email }}'

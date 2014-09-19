@@ -1,0 +1,26 @@
+#!!! src: https://security.stackexchange.com/questions/4629/simple-example-auditd-configuration
+# http://xmodulo.com/2013/05/how-to-monitor-file-access-on-linux.html
+---
+  - name: Install auditd to hold users accountable
+    action: apt name=auditd state=present
+    sudo: true
+    tags:
+      - auditd
+
+  - name: Copy auditd rules to /etc
+    copy: src=audit.conf dest=/etc/audit/audit.rules
+    sudo: true
+    tags:
+      - auditd
+    notify: Restart auditd
+
+  - name: Setup audit logrotation
+    shell: 'service auditd rotate'
+    sudo: true
+
+  - name: ensure auditd is running
+    service:
+      name: auditd
+      state: restarted
+      enabled: yes
+    sudo: true

@@ -1,0 +1,3 @@
+- name: Restart knockd
+  service: name=knockd state=restarted enabled=yes
+  sudo: yes

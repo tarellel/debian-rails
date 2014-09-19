@@ -1,0 +1,26 @@
+# Make file-to-group permissions a bit more restrictive with umask
+---
+  - name: Make umask strict
+    lineinfile: >
+      dest=/etc/init.d/rc
+      regexp="^umask"
+      line="umask 027"
+      state=present
+    sudo: true
+
+  - name: Make umask (/etc/login.defs) strict
+    lineinfile: >
+      dest=/etc/login.defs
+      regexp="^UMASK"
+      line="UMASK 027"
+      state=present
+    sudo: true
+
+  - name: Make umask (/etc/profile) strict
+    lineinfile: >
+      dest=/etc/profile
+      regexp="^umask"
+      line="umask 027"
+      state=present
+      insertafter=EOF
+    sudo: true

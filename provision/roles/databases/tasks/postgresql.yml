@@ -1,0 +1,57 @@
+# https://github.com/tilsammans/playbook/blob/master/roles/postgresql/tasks/main.yml
+# https://github.com/jeffersongirao/deploying_rails_with_ansible/blob/master/deployment/deploy_db.yml
+# !!!!! https://github.com/protobox/protobox/tree/master/lib/ansible/roles/postgresql
+---
+  - name: Verify if Postgresql installed
+    shell: 'psql --version'
+    register: postgres_installed
+    changed_when: false
+    ignore_errors: true
+    sudo: true
+
+
+  # install postgreql
+  - name: Install Postgresql
+    action: apt name={{item}} state=latest
+    sudo: true
+    with_items:
+      - postgresql
+      - postgresql-client
+      # may not need the following
+      - postgresql-contrib
+      - libpq-dev
+      # for interaction of postgresql + python AKA ansible
+      - python-pycurl
+      - python-psycopg2
+    tags: postgresql
+    notify: Restart postgresql
+    when: postgres_installed|failed
+
+  - name: Start postgresql
+    service: name=postgresql state=started
+    sudo: true
+    when: postgres_installed|failed
+
+
+  # add user/group for postgresql
+  - name: Create postgresql user
+    postgresql_user: name={{ db_username }} password={{ db_password }} state=present
+    sudo: true
+    sudo_user: postgres
+    when: postgres_installed|failed
+
+
+  # configure postgresql [locale, roles, etc.]
+  - name: Copy postgres hba config
+    template: src=pg_hba.conf dest=/etc/postgresql/9.1/main/pg_hba.conf
+    sudo: true
+    notify: Restart postgresql
+    when: postgres_installed|failed
+
+
+  # setup and create databases
+  - name: create postgresql database
+    postgresql_db: name={{ app }} owner={{ db_username }} state=present
+    sudo: true
+    sudo_user: postgres
+    when: postgres_installed|failed
