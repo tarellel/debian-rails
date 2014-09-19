@@ -17,9 +17,8 @@ copy id_rsa.pub to the files directory, because ssh is changed to use pubkey aut
     cp ~/.ssh/id_rsa.pub provision/files/workstation.pub
 
 
-To use with [DigitalOcean](https://www.digitalocean.com/) use the following commands:
-    # https://github.com/smdahlen/vagrant-digitalocean
-    vagrant plugin install vagrant-digitalocean
+
+##### Required steps
 
     # vagrant caching - https://github.com/fgrehm/vagrant-cachier
     #   http://fgrehm.viewdocs.io/vagrant-cachier
@@ -35,13 +34,6 @@ To use with [DigitalOcean](https://www.digitalocean.com/) use the following comm
     export SSL_CERT_FILE=/usr/local/opt/curl-ca-bundle/share/ca-bundle.crt
     ########## END ##########
 
-    Copy contents of file or change from DigitalOcean to Vagrantfile in base directory
-
-    # to load it up use the following command
-    vagrant up --provider=digital_ocean
-
-    # reprovision the
-    vagrant provision
 
 
 
@@ -68,6 +60,22 @@ Completely Destroy the provisioned box/VM
     vagrant destroy
     # destroy vagrant VM without confirmation
     vagrant destroy -f
+
+
+#### DigitalOcean
+To use with [DigitalOcean](https://www.digitalocean.com/) use the following commands:
+
+    # https://github.com/smdahlen/vagrant-digitalocean
+    vagrant plugin install vagrant-digitalocean
+
+    Copy contents of file or change from DigitalOcean to Vagrantfile in base directory
+
+    # to load it up use the following command
+    vagrant up --provider=digital_ocean
+
+    # reprovision the VM
+    vagrant provision
+
 
 
 ### Vagrant Roles ###
