@@ -68,7 +68,7 @@ To use with [DigitalOcean](https://www.digitalocean.com/) use the following comm
     # https://github.com/smdahlen/vagrant-digitalocean
     vagrant plugin install vagrant-digitalocean
 
-    Copy contents of file or change from DigitalOcean to Vagrantfile in base directory
+    Copy contents of file or change from host_vagrants/digitalocean to Vagrantfile in base directory
 
     # to load it up use the following command
     vagrant up --provider=digital_ocean
