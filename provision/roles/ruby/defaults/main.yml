@@ -1,0 +1,6 @@
+---
+
+rbenv_plugins:
+  - { name: 'ruby-build',         repo: 'git://github.com/sstephenson/ruby-build.git' }
+  - { name: 'rbenv-gem-rehash',   repo: 'git://github.com/sstephenson/rbenv-gem-rehash.git' }
+  - { name: 'rbenv-vars',         repo: 'git://github.com/sstephenson/rbenv-vars.git' }

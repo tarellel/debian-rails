@@ -4,7 +4,7 @@
 # https://github.com/ansible/ansible-examples/blob/master/language_features/postgresql.yml
 ---
 - hosts: all
-  user: root
+  user: vagrant
   gather_facts: no
   connection: ssh
 
@@ -66,7 +66,7 @@
       sudo: true
 
 
-    # reboot system
-#    - name: reboot
-#      sudo: true
-#      command: '/sbin/reboot'
+    # reboot system to verify installed Components
+    #- name: System Reboot
+    #  sudo: true
+    #  command: '/sbin/reboot'

@@ -24,6 +24,7 @@
 
 
   # Cache assets
+# location ~ ^/assets/  {
   location ^~ /assets/ {
     gzip_static on;
     expires max;

@@ -4,6 +4,8 @@
   - include: motd.yml
   - include: inittab.yml
 
+  - include: deploy_user.yml
+
 
 # update resolv.conf to use serveral DNS services
   - name: Override resolv

@@ -38,16 +38,16 @@
 
   ########## Start ##########
   ### REMOVE FOR PRODUCTION
-  - name: Delete default server ssh hosts/keys
-    shell: 'rm -rf /etc/ssh/ssh_host_*'
-    sudo: true
-    tags:
-      - ssh
+  #- name: Delete default server ssh hosts/keys
+  #  shell: 'rm -rf /etc/ssh/ssh_host_*'
+  #  sudo: true
+  #  tags:
+  #    - ssh
 
-  - name: Re-generate server ssh keys
-    command: dpkg-reconfigure openssh-server
-    notify: Restart ssh
-    sudo: true
+  #- name: Re-generate server ssh keys
+  #  command: dpkg-reconfigure openssh-server
+  #  notify: Restart ssh
+  #  sudo: true
   ########## Stop ##########
 
 

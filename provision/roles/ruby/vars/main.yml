@@ -1,3 +1,6 @@
 ---
-  home_dir: "/home/{{ user }}"
-  rbenv_dir: "{{ home_dir }}/.rbenv"
+  #home_dir: "/home/{{ user }}"
+  #rbenv_dir: "{{ home_dir }}/.rbenv"
+  # /home/{{ user }}/.rbenv/shims
+  #rbenv_bin: "{{ rbenv_dir }}/bin/rbenv"
+  #rbenv_shim: "{{ rbenv_dir }}/shims/"

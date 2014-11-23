@@ -127,8 +127,10 @@
 
 
 # generate an empty rails location for deployment
+# bundle exec rails
 - name: Generate sample Rails App for Deployment
-  shell: "bash -lc 'rails new {{ app }}'"
+  shell: "bash -lc '{{ rbenv_shim }}rails new {{ app }}'"
+  #shell: "bash -lc 'rails new {{ app }}'"
   when: app_exists|failed
 
 
@@ -138,10 +140,14 @@
   when: app_exists|failed
 
 
-
 #- name: grant permisson to access/write nginx (/var/www/{{ app }}/public)
 - name: grant folder write permissions to nginx/tmp
-  file: path=/var/www/{{ app }}/{{ item }} mode=0774 owner=www-data group=www-data
+  file:
+    path=/var/www/{{ app }}/{{ item }}
+    mode=0774
+    owner=www-data
+    group=www-data
+    recurse=yes
   with_items:
     - 'public'
     - 'tmp'
@@ -151,9 +157,19 @@
 # Not necessarly required,
 # if using sqlite3 passengar initiates db on first load
 - name: generate rails DB
-  shell: chdir=/var/www/{{ app }} bundle exec rake db:migrate
+  shell: chdir=/var/www/{{ app }} {{ rbenv_shim }}rake db:migrate
+  # bundle exec rake db:migrate
+  when: app_exists|failed
 
-  
+
+- name: Grant application permissions to {{ deploy_user }}
+  file:
+    path=/var/www/{{ app }}
+    owner={{ deploy_username }}
+    group=users
+    recurse=yes
+  sudo: true
+
 
 - name: ensure nginx is running
   service:

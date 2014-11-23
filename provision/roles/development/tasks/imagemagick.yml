@@ -16,6 +16,9 @@
       - libxslt-dev
       - zlib1g-dev
       - libexif-dev # image EXIF
+      # optimizing images
+      - optipng
+      - jpegoptim
 
   - name: Install ImageMagick Image Processing library
     action: apt name=imagemagick state=present

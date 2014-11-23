@@ -24,12 +24,12 @@
   changed_when: false
   ignore_errors: true
 
-#force=yes
-#recursive=no
 
+########################################
+##### INSTALL RBENV AND PLUGINS #####
 - name: Checkout rbenv repo
   git: >
-    repo=git@github.com:sstephenson/rbenv.git
+    repo=git://github.com/sstephenson/rbenv.git
     dest=.rbenv
     update=yes
     accept_hostkey=yes
@@ -42,24 +42,20 @@
 
 # when git clones it defaults to owner=root upon deployment
 - name: grant persmission to {{ user }}
-  shell: sudo chown -R {{ user }} .rbenv
+  shell: sudo chown -R {{ user }}:{{ user }} .rbenv
   sudo: yes
 
 
-- name: Download/Install ruby-build plugin
-  git: >
-    repo=git://github.com/sstephenson/ruby-build.git
-    dest={{ rbenv_dir }}/plugins/ruby-build
-    update=no
-    accept_hostkey=yes
-  when: rbenv_installed|failed
-
-- name: Download/Install rbenv-gem-rehash plugin
+- name: Install Plugins
   git:
-    repo=git://github.com/sstephenson/rbenv-gem-rehash.git
-    dest={{ rbenv_dir }}/plugins/rbenv-gem-rehash
-    update=no
+    repo={{ item.repo }}
+    dest={{ rbenv_dir }}/plugins/{{ item.name }}
+    accept_hostkey=true
   when: rbenv_installed|failed
+  with_items: rbenv_plugins
+  tags:
+  - rbenv
+########################################
 
 
 - name: Copy rbenv to ~/.bashrc
@@ -67,13 +63,12 @@
   when: rbenv_installed|failed
   notify: source rbenv_bash
 
-- name: Reload the shell to load rbenv & ruby properly
-  shell: 'exec $SHELL -i'
+
 
 # https://github.com/leonidas/ansible-rbenv/blob/master/tasks/main.yml
 # https://github.com/zzet/ansible-rbenv-role/blob/master/tasks/main.yml
 - name: Verify if required ruby version is installed
-  shell: "rbenv versions | grep {{ ruby_version }}"
+  shell: 'bash -lc "{{ rbenv_bin}} versions | grep {{ ruby_version }}"'
   when: not "system" == "{{ ruby_version }}"
   register: ruby_installed
   changed_when: false
@@ -96,18 +91,17 @@
   when: not "system" == "{{ ruby_global }}"
 
 
-# exec $SHELL
-- name: Reload the shell to load rbenv & ruby properly
-  shell: 'exec $SHELL -i'
-  # -l for .bash_profile
-  # -i for .bashrc
+
+#####
+
 
 
 - name: Update gems
-  shell: "gem update --system"
+  shell: 'bash -lc "{{ rbenv_shim }}gem update --system"'
 
 - name: Install bundler
-  shell: 'gem install bundler'
+  shell: 'bash -lc "{{ rbenv_shim }}gem install bundler"'
+
 
 - name: Install latest version of Rails
-  shell: 'gem install rails'
+  shell: 'bash -lc "{{ rbenv_shim }}gem install rails"'

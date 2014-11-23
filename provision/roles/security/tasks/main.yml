@@ -10,15 +10,15 @@
 # system config/security hardening
 - include: sysctl.yml
 - include: host_conf.yml
-- include: umask.yml
+#- include: umask.yml
 - include: passwd.yml
 - include: auditd.yml
 
 # Add user to allow logins
-- include: deploy_user.yml
+#- include: deploy_user.yml
 
 # secure shared memory, use to prevent process attacks on a shared host
-- include: fstab.yml
+#- include: fstab.yml
 
 
 - name: Install recommended srk packages

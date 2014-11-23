@@ -58,6 +58,12 @@
     changed_when: false
     ignore_errors: true
 
+  - name: Create .ssh directory
+    shell: mkdir -p /home/{{user}}/.ssh
+    #sudo_user: '{{ user }}'
+    when: rsa_available|failed
+    #sudo: true
+
   # Generate sshkey, but don't regenerate every provision
   # https://github.com/zealot128/ansible-rails_apps/blob/master/tasks/deployment_key.yml
   - name: Generate SSH keys for user
@@ -66,6 +72,7 @@
     register: user_pubkey
     sudo_user: '{{ user }}'
     when: rsa_available|failed
+    #sudo: true
 
   - debug: var=user.stdout_lines
     when: user_pubkey|changed
@@ -74,3 +81,4 @@
     command: /bin/cat /home/{{user}}/.ssh/id_rsa.pub
     register: cat
     when: user_pubkey|changed
+    sudo: true

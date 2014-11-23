@@ -1,5 +1,2 @@
-# examples:
-# ~> https://github.com/leucos/ansible-rbenv-playbook/blob/master/hosts
-# ~> https://github.com/owainlewis/vagrant-ansible-rails/blob/master/hosts
 [localhost]
 127.0.0.1

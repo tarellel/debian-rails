@@ -32,13 +32,17 @@
 #    http://blog.x-aeon.com/2013/03/06/monitor-your-systems-using-monit-on-shared-hosts-non-root-example-with-rails3-capistrano/
 ####
 ---
+
+# sudo groupadd monit
+# sudo usermod -G monit Silver_HeartLeaf27
   - name: monit | Install monit monitoring system
     action: apt name=monit state=present
     sudo: true
 
   # Update monitrc on line containing httpd to adjust monit security
   - name: monit | Update monit config
-    copy: src=monitrc dest=/etc/monit/monitrc
+    #copy: src=monitrc dest=/etc/monit/monitrc
+    template: src=monitrc dest=/etc/monit/monitrc
     sudo: true
 
   - name: Monit | Copy monit service files
@@ -49,7 +53,7 @@
       - memcached
       - nginx
       - ntp
-      - postfix
+     # - postfix
       - postgresql
       - redis
       - rsyslog

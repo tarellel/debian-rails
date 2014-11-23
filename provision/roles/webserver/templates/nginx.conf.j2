@@ -139,7 +139,7 @@ http {
 	# https://intercityup.com/blog/deploying-app-env-variables-with-rbenv-passenger-and-capistrano/
 	# https://stackoverflow.com/questions/853532/slow-initial-server-startup-when-using-phusion-passenger-and-rails
 	passenger_root /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini;
-	passenger_ruby /home/{{ user }}/.rbenv/shims/ruby;
+	passenger_ruby /home/{{ deploy_username }}/.rbenv/shims/ruby;
 	passenger_show_version_in_header off;
 	# specify env= otherwise will output as production
 	passenger_app_env development;

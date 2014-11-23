@@ -123,7 +123,7 @@ set httpd port 2812 and
 #    allow admin:monit      # require user 'admin' with password 'monit'
 #    allow @monit           # allow users of group 'monit' to connect (rw)
 #    allow @users readonly  # allow users of group 'users' to connect readonly
-  allow {{ deploy_username }}:jGxORoNPY2N4s3d
+  allow {{ deploy_username }}:1234abcd
 #528d0BQiPB
 #
 ###############################################################################

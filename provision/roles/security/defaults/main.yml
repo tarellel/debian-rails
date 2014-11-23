@@ -33,6 +33,6 @@ ssh_settings:
   ClientAliveCountMax: "0"
   DebianBanner: no
   Banner: /etc/issue.net
-  AllowGroups: admin vagrant
+#  AllowGroups: admin vagrant # causes errors when enabled
   MaxSessions: "3"
   MaxStartups: "10:30:60"
