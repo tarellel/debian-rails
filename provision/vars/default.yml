@@ -19,7 +19,7 @@ app: armada           # example.com
 app_root: /var/www
 protocol: http        # http | https (//TODO Will add SSL generate and config based off protocol)
 domain: example.com   # 127.0.0.1
-hostname: absinthe37  # as in computer name
+hostname: testbox  # as in computer name
 port: 3000            # The Port your Rails App is running on
 
 
