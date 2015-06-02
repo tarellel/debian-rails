@@ -61,6 +61,12 @@ Completely Destroy the provisioned box/VM
     # destroy vagrant VM without confirmation
     vagrant destroy -f
 
+    # if vagrant/ansible freezes giving you an error that the instance is already open use the following commands
+    vagrant global-status
+    # this will output all open vagrant instances with their ids, providers etc
+    vagrant destroy 0965180
+    # this will kill the current vagrant process with that particular specified id
+
 
 #### DigitalOcean
 To use with [DigitalOcean](https://www.digitalocean.com/) use the following commands:
