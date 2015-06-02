@@ -7,5 +7,6 @@
 
 - name: Upgrade existing packages
   sudo: true
-  apt: upgrade=dist
+  #apt: upgrade=dist
   #apt: upgrade=safe
+  apt: upgrade=safe
