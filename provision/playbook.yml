@@ -1,0 +1,72 @@
+####################
+# http://www.stefanwienert.de/blog/2013/09/28/ansible-server-configuration-the-easy-way/
+# http://blog.javabien.net/2014/03/31/ansible-and-google-compute-engine/
+# https://github.com/ansible/ansible-examples/blob/master/language_features/postgresql.yml
+---
+- hosts: all
+  user: vagrant
+  gather_facts: no
+  connection: ssh
+
+  vars_files:
+    - vars/default.yml
+
+
+  roles:
+    # used in order to allow [PublicKey] processing with ssh & github
+    - { role: prereq_config, tags: prereq }
+
+    # Upgrade system and packages
+    - { role: apt, tags: apt }
+
+    # Download/install basic tools
+    - { role: build, tags: build }
+
+    # Download/install needed development tools and libraries
+    - { role: development, tags: development }
+
+    # Download/Install Ruby,RVM, and Rails
+    - { role: ruby, tags: ruby }
+
+    # Download/install databases and components
+    - { role: databases, tags: databases }
+
+    # Download/Install nginx, proxies, and other required servers
+    - {role: webserver, tags: webserver }
+
+    # Download/Install/Setup security
+    - { role: security, tags: security }
+
+    # Download/Install system monitoring tools
+    - { role: monitoring, tags: monitoring }
+
+  tasks:
+    # Setup Deployment User login and sudo config
+    # ==================================================
+
+    #- name: 'Add SSH public key to user [deployment_user]'
+    #  authorized_key:
+    #    user=vagrant
+    #    key="{{ lookup('file', "files/workstation.pub") }}"
+            # key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    #  tags:
+    #    - security
+    #  sudo: true
+
+    # deployment user: https://github.com/alvinsj/digitalocean-ansible-rails/blob/try-digital-ocean/playbooks/base/roles/base/tasks/main.yml
+
+
+
+    # https://github.com/pjan/the-ansibles/blob/master/roles/apt/tasks/main.yml
+    - debug: msg="If on vagrant - reboot the machine; login; run `sudo /etc/init.d/vboxadd setup` to repair the vagrant specifics."
+
+
+    #- name: Updatedb
+    #  shell: updatedb
+    #  sudo: true
+
+
+    # reboot system to verify installed Components
+    #- name: System Reboot
+    #  sudo: true
+    #  command: '/sbin/reboot'

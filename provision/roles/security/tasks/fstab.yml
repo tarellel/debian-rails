@@ -1,0 +1,11 @@
+# http://www.thefanclub.co.za/how-to/how-secure-ubuntu-1204-lts-server-part-1-basics
+# https://www.digitalocean.com/community/tutorials/how-to-configure-virtual-memory-swap-file-on-a-vps
+# Secure shared memory on a VPS
+---
+  - name: Secure shared memory (add to /etc/fstab)
+    lineinfile: >
+      dest=/etc/fstab
+      regexp="tmpfs"
+      line="tmpfs     /dev/shm     tmpfs     defaults,noexec,nosuid     0     0"
+      state=present
+    sudo: true

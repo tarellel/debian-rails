@@ -1,0 +1,13 @@
+# https://github.com/ryankanno/ansible-roles/blob/master/hostname/tasks/main.yml
+# https://github.com/DigitalOcean-User-Projects/Articles-and-Tutorials/blob/master/set_hostname_fqdn_on_ubuntu_centos.md
+# http://www.dbms-notes.com/2011/07/hosts-vs-hostname_20.html
+# https://github.com/knopki/ansible-hostname
+- name: Configure System HOSTNAME
+  hostname: name={{ hostname }}
+  sudo: true
+  tags: HOSTNAME
+
+
+# look into something similar to https://github.com/knopki/ansible-hostname/blob/master/tasks/main.yml
+# https://github.com/CenterForOpenScience/cos-ansible-base/blob/master/roles/hostname/tasks/main.yml
+# https://github.com/knopki/ansible-hostname/blob/master/tasks/main.yml

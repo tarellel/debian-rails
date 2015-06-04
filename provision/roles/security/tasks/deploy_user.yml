@@ -1,0 +1,13 @@
+# http://www.howtogeek.com/50787/add-a-user-to-a-group-or-second-group-on-linux/
+---
+  - name: Create users group
+    group: name=users state=present
+
+  # usermod -a -G <groupname> username
+  # to verify user in group
+  # su <username>
+  # groups
+  # |or| sudo id <username>
+  - name: Add deployment user
+    action: user name={{ deploy_username }} password={{ deploy_password }} shell=/bin/bash state=present group=users
+    sudo: true

@@ -1,0 +1,184 @@
+# ---- nginx and rails setup -----
+# ~> https://github.com/mortik/ansible-nginx-rails
+# phusion/nginx
+# ~> https://www.digitalocean.com/community/tutorials/how-to-install-rails-and-nginx-with-passenger-on-ubuntu
+# ~> https://www.linode.com/docs/websites/ror/ruby-on-rails-with-nginx-on-debian-7-wheezy
+# ~> https://www.phusionpassenger.com/documentation/Users%20guide%20Nginx.html#install_on_debian_ubuntu
+# ~> https://github.com/jbinto/ansible-ubuntu-rails-server/blob/master/roles/nginx-passenger/tasks/main.yml
+# ~> https://intercityup.com/blog/deploying-app-env-variables-with-rbenv-passenger-and-capistrano/
+# ~> https://github.com/tilsammans/playbook/blob/master/roles/rails/tasks/main.yml
+# ~> ! https://github.com/X0nic/ansible-rails-stack
+
+- name: Install libcurl4-openssl-dev
+  apt: name=libcurl4-openssl-dev state=present # required for nginx/passnger install
+  sudo: true
+
+
+- name: Determine if passenger is installed
+  shell: which passenger
+  register: passenger_installed
+  ignore_errors: true
+  changed_when: false
+
+  # Can't seem to use keyserver= apt_key feature here
+  # See https://groups.google.com/forum/#!topic/ansible-project/8SEZWEQGTsg
+#- name: Add Phusion Passenger repo key
+#  apt_key: url=http://keyserver.ubuntu.com/pks/lookup?op=get&fingerprint=on&search=0x561F9B9CAC40B2F7 state=present
+#  sudo: true
+#  when: passenger_installed|failed
+
+- name: Add APT PGP Key
+  shell: "apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 561F9B9CAC40B2F7"
+  sudo: true
+  when: passenger_installed|failed
+
+
+- name: Install packages to enable apt over HTTPS
+  action: apt pkg={{item}} state=installed update_cache=true
+  sudo: yes
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+  when: passenger_installed|failed
+
+
+- name: Add Phusion Passenger Repo
+  apt_repository: repo='deb https://oss-binaries.phusionpassenger.com/apt/passenger jessie main'
+  sudo: true
+  when: passenger_installed|failed
+
+
+# determine if nginx installed: dpkg -s nginx-common
+- name: Install nginx-extras and passenger
+  action: apt pkg={{item}} state=installed update_cache=true
+  sudo: yes
+  with_items:
+    # note: Passenger repo has it's own nginx-extras package.
+    - nginx-extras
+    - passenger
+  when: passenger_installed|failed
+
+
+- name: Remove the default nginx app's config
+  file: path=/etc/nginx/sites-available/default state=absent
+  sudo: yes
+  when: passenger_installed|failed
+
+
+- name: "Remove the default nginx app's symlink if it exists"
+  file: path=/etc/nginx/sites-enabled/default state=absent
+  sudo: yes
+  when: passenger_installed|failed
+
+
+### Must remove default nginx config
+# ~> https://github.com/jbinto/ansible-ubuntu-rails-server/blob/master/roles/nginx-passenger/tasks/main.yml
+- name: copy processed nginx.conf
+  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
+  sudo: yes
+  notify: Restart nginx
+
+- name: 'Verify if application: {{ app }} already exists'
+  shell: "[ -d /var/www/{{ app }} ] && echo 'exists'"
+  register: app_exists
+  ignore_errors: yes
+  changed_when: false
+
+
+
+# nginx vhost ~> https://www.digitalocean.com/community/tutorials/how-to-set-up-nginx-server-blocks-virtual-hosts-on-ubuntu-14-04-lts
+# ~> http://alexbachuk.com/launch-rails-4-application-with-passenger-and-nginx/
+# -> https://www.linode.com/docs/websites/ror/ruby-on-rails-with-nginx-on-ubuntu-12-04-precise
+- name: create folder for vhost/application
+  shell: 'mkdir -p /var/www'
+  sudo: yes
+
+- name: grant persmission to nginx
+  shell: sudo chown -R www-data:www-data /var/www
+  sudo: yes
+  when: app_exists|failed
+
+
+- name: grant persmissions so files can be read for access
+  shell: chmod 755 /var/www
+  sudo: yes
+
+  # setup config for rails_app
+- name: Setup app/config for rails app
+  template: src=app.conf.j2 dest=/etc/nginx/sites-available/{{ app }}
+  sudo: yes
+
+
+  # -H checks specifically for system links created my ln -s
+- name: Verify if {{ app }} is added to sites-enabled
+  #shell: '[ -L /etc/nginx/sites-enabled/{{ app }} ] && echo "exists" || echo "false"'
+  shell: 'ls -H /etc/nginx/sites-enabled/'
+  register: nginx_enabled
+  ignore_errors: yes
+  changed_when: false
+
+
+# file link is a test if anything revert back to ls -s
+- name: Enable site for nginx
+  #shell: 'ln -s /etc/nginx/sites-available/{{ app }} /etc/nginx/sites-enabled/{{ app }}'
+  file:
+    state=link
+    src=/etc/nginx/sites-available/{{ app }}
+    dest=/etc/nginx/sites-enabled/{{ app }}
+  sudo: yes
+  when: nginx_enabled != ''
+
+
+
+
+# generate an empty rails location for deployment
+# bundle exec rails
+- name: Generate sample Rails App for Deployment
+  shell: "bash -lc '{{ rbenv_shim }}rails new {{ app }}'"
+  #shell: "bash -lc 'rails new {{ app }}'"
+  when: app_exists|failed
+
+
+- name: Move generated Sample App to /var/www
+  shell: 'mv {{ app }} /var/www/{{ app }}'
+  sudo: yes
+  when: app_exists|failed
+
+
+#- name: grant permisson to access/write nginx (/var/www/{{ app }}/public)
+- name: grant folder write permissions to nginx/tmp
+  file:
+    path=/var/www/{{ app }}/{{ item }}
+    mode=0774
+    owner=www-data
+    group=www-data
+    recurse=yes
+  with_items:
+    - 'public'
+    - 'tmp'
+  sudo: true
+
+
+# Not necessarly required,
+# if using sqlite3 passengar initiates db on first load
+- name: generate rails DB
+  shell: chdir=/var/www/{{ app }} {{ rbenv_shim }}rake db:migrate
+  # bundle exec rake db:migrate
+  when: app_exists|failed
+
+
+- name: Grant application permissions to {{ deploy_user }}
+  file:
+    path=/var/www/{{ app }}
+    owner={{ deploy_username }}
+    group=users
+    recurse=yes
+  sudo: true
+
+
+- name: ensure nginx is running
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+  sudo: true

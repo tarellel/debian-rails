@@ -1,0 +1,88 @@
+---
+  # https://stackoverflow.com/questions/23506911/ansible-1-6-vagrant-1-6-ssh-forwarding-doesnt-look-like-its-working
+  # required in order to get GIT to copy repositories from github.com
+  - name: Copy sudoers file for safety
+    command: cp -f /etc/sudoers /etc/sudoers.tmp
+    sudo: true
+
+  - name: Create sudoers file backup
+    command: cp -f /etc/sudoers /etc/sudoers.bak
+    sudo: true
+
+  - name: Create admins group
+    group: name=admins system=yes state=present
+    sudo: true
+
+
+  - name: make sure we can sudo as admin group
+    lineinfile: dest=/etc/sudoers.tmp state=present regexp='^%admin' line='%admin ALL=(ALL) ALL'
+    sudo: true
+
+
+  - name: Make sure ssh-agent works via sudo
+    lineinfile: dest=/etc/sudoers.tmp state=present regexp='^Defaults env_keep\+\=SSH_AUTH_SOCK' line='Defaults env_keep+=SSH_AUTH_SOCK'
+    sudo: true
+
+  - name: make sure postgres is added for easy cration
+    lineinfile: "dest=/etc/sudoers.tmp state=present line='%sudo ALL=(postgres) NOPASSWD: ALL'"
+    sudo: true
+
+  - name: Final sudoers file check
+    shell: visudo -q -c -f /etc/sudoers.tmp && cp -f /etc/sudoers.tmp /etc/sudoers
+    sudo: true
+
+
+
+
+  ### Possible work around for this - https://github.com/CenterForOpenScience/cos-ansible-base/blob/master/roles/github/tasks/main.yml
+  # used in order to clone from github without errors
+  - name: Get github.com RSA key
+    sudo: False
+    shell: ssh-keyscan -t rsa github.com
+    connection: local
+    register: rsaresult
+    changed_when: False
+    failed_when: "rsaresult.rc != 0"
+
+  # TODO: figure out correct permissions for this file
+  - name: Ensure github.com key in /etc/ssh/ssh_known_hosts
+    lineinfile: >
+      line="{{ rsaresult.stdout }}"
+      dest="~/.ssh/ssh_known_hosts"
+      insertafter=EOF
+      create=yes
+      state=present
+      mode=0777
+    sudo: True
+
+
+  - name: verify if user has SSH keys
+    shell: 'ls -al ~/.ssh/id_rsa*'
+    register: rsa_available
+    changed_when: false
+    ignore_errors: true
+
+  - name: Create .ssh directory
+    shell: mkdir -p /home/{{user}}/.ssh
+    #sudo_user: '{{ user }}'
+    when: rsa_available|failed
+    #sudo: true
+
+  # Generate sshkey, but don't regenerate every provision
+  # https://github.com/zealot128/ansible-rails_apps/blob/master/tasks/deployment_key.yml
+  - name: Generate SSH keys for user
+    shell: creates=/home/{{ user }}/.ssh/id_rsa
+           ssh-keygen -f /home/{{ user }}/.ssh/id_rsa -t rsa -b 2048 -N ''
+    register: user_pubkey
+    sudo_user: '{{ user }}'
+    when: rsa_available|failed
+    #sudo: true
+
+  - debug: var=user.stdout_lines
+    when: user_pubkey|changed
+
+  - name: Show SSH public key
+    command: /bin/cat /home/{{user}}/.ssh/id_rsa.pub
+    register: cat
+    when: user_pubkey|changed
+    sudo: true

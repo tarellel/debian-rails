@@ -1,0 +1,54 @@
+# https://www.digitalocean.com/community/tutorials/how-to-install-and-setup-postfix-on-ubuntu-12-04
+# https://www.digitalocean.com/community/tutorials/how-to-configure-a-mail-server-using-postfix-dovecot-mysql-and-spamassasin
+# https://www.digitalocean.com/community/tutorials/how-to-install-and-setup-postfix-on-ubuntu-14-04
+#
+# GITHUB:
+#   https://github.com/al3x/sovereign/blob/master/roles/mailserver/tasks/postfix.yml
+#   https://github.com/M4nu/ansible/blob/master/postfix/main.yml
+#   https://github.com/cturner80/digital-ocean-ansible/blob/master/tasks/postfix.yml
+#
+# TESTING:
+# CLI:
+#   https://stackoverflow.com/questions/4798772/postfix-its-installed-but-how-do-i-test
+#   https://workaround.org/ispmail/lenny/test-mail-through-telnet
+#   http://www.tldp.org/HOWTO/Postfix-Cyrus-Web-cyradm-HOWTO/test.html
+#
+# SETUP
+#   https://help.ubuntu.com/community/PostfixBasicSetupHowto
+#   http://www.cyberciti.biz/faq/postfix-receive-mail-on-specific-network-interfaces/
+#
+# POSTS
+#   http://serverfault.com/questions/262100/configure-postfix-to-only-allow-outgoing-mail-from-localhost
+#   https://www.digitalocean.com/community/tutorials/how-to-set-up-a-postfix-e-mail-server-with-dovecot
+#   https://www.digitalocean.com/community/tutorials/how-to-install-and-setup-postfix-on-ubuntu-14-04
+#   http://www.debian-tutorials.com/how-to-install-and-configure-postfix-dovecot-and-squirrelmail-on-debian-linux
+#   https://www.digitalocean.com/community/tutorials/how-to-set-up-a-postfix-email-server-with-dovecot-dynamic-maildirs-and-lmtp
+#   https://www.digitalocean.com/community/tutorials/how-to-set-up-a-postfix-e-mail-server-with-dovecot
+---
+  - name: Install postfix
+    action: apt name=postfix state=latest update_cache=yes
+    sudo: true
+
+  - name: Postfix | configure
+    lineinfile: >
+      dest=/etc/postfix/main.cf
+      regexp="{{ item.regexp }}"
+      line="{{ item.line }}"
+      backup=yes
+    with_items:
+      - { regexp: "^myorigin", line: "myorigin = {{ domain }}" }
+      - { regexp: "^myhostname", line: "myhostname = {{ mail_server_hostname }}" }
+    sudo: true
+    notify: Reload postfix
+
+
+# TODO> Setup aliases https://github.com/M4nu/ansible/blob/master/postfix/main.yml
+
+# TODO> Setup Certificate - https://www.digitalocean.com/community/tutorials/how-to-set-up-a-postfix-e-mail-server-with-dovecot
+
+
+
+# may have to allow ufw ports for
+#     with_items:
+#    - smtp
+#    - ssmtp

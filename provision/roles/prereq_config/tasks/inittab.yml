@@ -1,0 +1,7 @@
+---
+  - name: Disable restarting via ctl+alt+del
+    lineinfile: >
+      dest=/etc/inittab
+      regexp='ca:12345:ctrlaltdel:/sbin/shutdown -t1 -a -r now'
+      line='#ca:12345:ctrlaltdel:/sbin/shutdown -t1 -a -r now'
+    sudo: true

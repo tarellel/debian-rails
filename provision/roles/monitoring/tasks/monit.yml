@@ -1,0 +1,89 @@
+# https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-monit
+# http://www.tecmint.com/how-to-install-and-setup-monit-linux-process-and-services-monitoring-program/
+# http://www.debianhelp.co.uk/monit.htm
+# http://www.darkcoding.net/software/setting-up-monit-on-ubuntu/
+###
+# https://github.com/pjan/the-ansibles
+# https://github.com/nickjj/ansible-monit
+# https://github.com/pgolm/ansible-playbook-monit
+###
+# ERRORS
+# https://www.digitalocean.com/community/questions/monit-error-in-ubuntu
+####
+# Config Examples
+# http://blog.kablamo.org/2013/11/24/monit/
+# http://mmonit.com/wiki/Monit/ConfigurationExamples
+# https://gist.github.com/franck/1415908
+# https://github.com/Rackster/monit-pids
+# http://blog.noizeramp.com/2011/09/16/monit-configuration-for-rails-stack/
+# http://www.stuartellis.eu/articles/monit/
+####
+# access through: http://localhost:2812/
+# nginx config: https://stackoverflow.com/questions/9095376/nginx-and-monit-web-interface-how-to-have-monit-on-domain-com-monit-versus-dom
+# resque: https://github.com/resque/resque/blob/master/examples/monit/resque.monit
+####
+# Modules:
+# memcached -
+#    http://www.alphadevx.com/a/392-Monitoring-Memcache-with-Monit
+#    http://blog.burcsade.com/2010/11/09/monit-configuration-to-monitor-memcached-instances/
+# PhusionPassenger
+#    https://github.com/romanbsd/passenger_monit
+# Rails:
+#    http://blog.x-aeon.com/2013/03/06/monitor-your-systems-using-monit-on-shared-hosts-non-root-example-with-rails3-capistrano/
+####
+---
+
+# sudo groupadd monit
+# sudo usermod -G monit Silver_HeartLeaf27
+  - name: monit | Install monit monitoring system
+    action: apt name=monit state=present
+    sudo: true
+
+  # Update monitrc on line containing httpd to adjust monit security
+  - name: monit | Update monit config
+    #copy: src=monitrc dest=/etc/monit/monitrc
+    template: src=monitrc dest=/etc/monit/monitrc
+    sudo: true
+
+  - name: Monit | Copy monit service files
+    template: src=monit/{{ item }}.j2 dest=/etc/monit/conf.d/{{ item }}
+    with_items:
+      - cron
+      - fail2ban
+      - memcached
+      - nginx
+      - ntp
+     # - postfix
+      - postgresql
+      - redis
+      - rsyslog
+      - sshd
+    sudo: true
+
+  - name: Monit | Start monit service
+    service: name=monit state=restarted
+    sudo: true
+
+  # allow ufw port for monit
+  - name: Open port for monit web access
+    ufw: rule=allow port=2812 proto=tcp
+    sudo: true
+
+
+# filter : https://raw.githubusercontent.com/fail2ban/fail2ban/master/config/filter.d/monit.conf
+# Prevent monit from being brute-forced by applying Fail2ban policy
+  - name: Apply fail2ban/monit policy file (prevent Brute-Force logins)
+    template: src=monit_fail2ban_filter dest=/etc/fail2ban/filter.d/mmonit.conf
+    sudo: true
+
+# https://github.com/fail2ban/fail2ban/blob/master/config/jail.conf
+  - name: Replace fail2ban.conf with current file with various custom config
+    copy:
+      src=jail.conf
+      dest=/etc/fail2ban/jail.conf
+    sudo: true
+
+
+
+# verify fail2ban regex
+#   sudo fail2ban-regex /var/log/monit.log /etc/fail2ban/filter.d/mmonit.conf

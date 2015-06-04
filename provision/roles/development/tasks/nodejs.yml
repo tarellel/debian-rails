@@ -1,0 +1,19 @@
+---
+  - name: Determine if node.js is already installed
+    shell: node -v
+    register: nodejs_installed
+    ignore_errors: yes
+    changed_when: false
+
+  # ~> https://github.com/eduardodeoh/ansible/blob/master/roles/nodejs/tasks/main.yml
+  - name: Fetch Nodejs Repository
+    shell: 'curl -sL https://deb.nodesource.com/setup | bash -'
+    sudo: true
+    tags: nodejs
+    when: nodejs_installed|failed
+
+  - name: Install nodejs
+    action: apt name=nodejs state=present
+    sudo: true
+    tags: nodejs
+    when: nodejs_installed|failed

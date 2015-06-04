@@ -1,0 +1,76 @@
+---
+user: vagrant
+ssh_port: '22'
+timezone: 'US/Mountain'
+
+# ******************************************************************************
+# email that log files, alerts, etc. will be sent to
+admin_email: 'admin@domain.com'
+
+# For a few particular installs allow the latest testing version to be installed
+#allow_test_repos: true
+# ******************************************************************************
+
+
+####################
+# Application configuration
+####################
+app: armada           # example.com
+app_root: /var/www
+protocol: http        # http | https (//TODO Will add SSL generate and config based off protocol)
+domain: example.com   # 127.0.0.1
+hostname: testbox  # as in computer name
+port: 3000            # The Port your Rails App is running on
+
+
+####################
+# Mail Server
+####################
+mail_server_hostname: "mail.{{ domain }}"
+
+
+####################
+# Server Security
+####################
+# when testing locally it's best to have portknocking shut off
+portknocking: false
+portknocking_ports: "7000, 8000, 9000"
+
+
+####################
+# RUBY
+####################
+#ruby_version: 2.1.3
+ruby_version: 2.2.2
+ruby_bin: /home/{{ user }}/.rbenv/shims/ruby
+
+home_dir: "/home/{{ user }}"
+rbenv_dir: "{{ home_dir }}/.rbenv"
+# /home/{{ user }}/.rbenv/shims
+rbenv_bin: "{{ rbenv_dir }}/bin/rbenv"
+rbenv_shim: "{{ rbenv_dir }}/shims/"
+
+
+
+# Authentication / Verification
+# Password ~> https://github.com/ansible/ansible/issues/2305
+# Password Created with:
+# ====================
+# $: python -c 'import crypt; print crypt.crypt("rootme", "$1$SomeSalt$")'
+# $: python -c 'import crypt; print crypt.crypt("rootme", "$5$SomeSalt$")'
+# $: python -c 'import crypt; print crypt.crypt("rootme", "$6$SomeSalt$")'
+##### Used #####
+# * python -c 'import crypt; print crypt.crypt("IG7:tA{n3!}3R>p5r2M8|.b)Gd.6c", "$6$SomeSalt$")'
+# python -c 'import crypt; print crypt.crypt("IG7:tA{n3!}3R>p5r2M8|.b)Gd.6c", "$6$Som3S@lt$")'
+# ====================
+deploy_username: 'HappyPineapple27'
+#raw_password: tryMe2x
+deploy_password: $6$Som3S@lt$qwrNocZLnXsv3diJh208RRNGNiIC.X5KQpH/WqN906r48YwevE4rDkPy0lIt4aRFicV2.7qLfMg2UnGITzRda.
+
+# Database Authorization
+db_username: 'pg_username'
+db_password: 'KeepItSafe'
+
+# git config
+git_username: 'Github_USERNAME'
+git_email: 'admin@domain.com'

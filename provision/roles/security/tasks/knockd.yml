@@ -1,0 +1,21 @@
+# if port_knocking is enabled
+- name: Install knockd portknocking client
+  action: apt name=knockd state=latest
+  sudo: true
+
+# Enable knockd on startup - /etc/default/knockd
+- name: Enable knockd on startup
+  lineinfile: >
+    dest=/etc/default/knockd
+    regexp='START_KNOCKD'
+    line='START_KNOCKD=1'
+  sudo: true
+
+
+- name: Update knockd portknocking config
+  template: >
+    src=knockd.j2
+    dest=/etc/knockd.conf
+    mode=0640
+  sudo: true
+  notify: Restart knockd

@@ -1,0 +1,40 @@
+- name: Install base packages
+  action: apt name={{item}} state=present
+  sudo: yes
+  with_items:
+    - autoconf
+    - automake
+    - bison
+    - build-essential
+    - checkinstall
+    - curl
+    - gcc
+    - g++
+    - git-core
+    - libc6-dev
+    - libreadline6
+    - libreadline6-dev
+    - libtool
+    - libsqlite3-dev
+    - libssl-dev
+    - libxml2-dev
+    - libxslt-dev
+    - libyaml-dev
+    - ncurses-dev
+    - ntp   # Network Time Protocol - used to keep network time updated properly
+    - openssl
+    - sqlite3
+    - zlib1g
+    - zlib1g-dev
+#    - subversion
+    # was used for RVM, may be able to remove
+    - gawk
+    - libgdbm-dev
+    - libncurses5-dev
+    - libtool
+    - libffi-dev
+  notify: Restart ntp
+
+- name: Run NTP on boot
+  service: name=ntp state=started enabled=yes
+  sudo: true

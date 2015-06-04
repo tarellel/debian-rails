@@ -1,0 +1,4 @@
+---
+  - name: Prevent IP Spoofing
+    copy: src=host.conf dest=/etc/host.conf
+    sudo: true

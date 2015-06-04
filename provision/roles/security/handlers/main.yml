@@ -1,0 +1,6 @@
+---
+- include: fail2ban.yml
+- include: firewall.yml
+- include: ssh.yml
+- include: knockd.yml
+- include: auditd.yml

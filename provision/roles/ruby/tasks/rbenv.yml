@@ -1,0 +1,107 @@
+# https://github.com/leucos/ansible-rbenv-playbook/blob/master/roles/rbenv/tasks/rbenv-setup.yml
+# https://github.com/jeffersongirao/deploying_rails_with_ansible/blob/master/provisioning/app_server.yml
+# https://github.com/jbinto/ansible-ubuntu-rails-server/blob/master/roles/rbenv/tasks/main.yml
+# https://github.com/mmoya/ansible-playbooks/blob/master/rbenv/main.yml
+
+####### !!!!!!!!
+# !!!!!! https://github.com/DrTom/ansible-role-rbenv/blob/master/tasks/main.yml
+# https://github.com/iangreenleaf/ansible-playbooks/blob/master/roles/rbenv/tasks/main.yml
+# https://www.google.com/search?q=ansible+debian+rbenv&oq=ansible+debian+rbenv&aqs=chrome..69i57.6719j0j9&sourceid=chrome&es_sm=91&ie=UTF-8
+# https://github.com/Lytol/rbenv
+# http://mmoya.org/blog/tag/ansible/
+####### !!!!!!!!
+
+
+
+# https://www.digitalocean.com/community/tutorials/how-to-install-ruby-on-rails-with-rbenv-on-debian-7-wheezy
+# https://gorails.com/setup/ubuntu/13.10
+
+
+
+- name: check if rbenv installed
+  shell: which rbenv
+  register: rbenv_installed
+  changed_when: false
+  ignore_errors: true
+
+
+########################################
+##### INSTALL RBENV AND PLUGINS #####
+- name: Checkout rbenv repo
+  git: >
+    repo=git://github.com/sstephenson/rbenv.git
+    dest=.rbenv
+    update=yes
+    accept_hostkey=yes
+  when: rbenv_installed|failed
+  tags:
+    - rbenv
+    - install
+  sudo: true
+
+
+# when git clones it defaults to owner=root upon deployment
+- name: grant persmission to {{ user }}
+  shell: sudo chown -R {{ user }}:{{ user }} .rbenv
+  sudo: yes
+
+
+- name: Install Plugins
+  git:
+    repo={{ item.repo }}
+    dest={{ rbenv_dir }}/plugins/{{ item.name }}
+    accept_hostkey=true
+  when: rbenv_installed|failed
+  with_items: rbenv_plugins
+  tags:
+  - rbenv
+########################################
+
+
+- name: Copy rbenv to ~/.bashrc
+  copy: src=rbenv dest=~/.bashrc mode=700 owner={{ user }}
+  when: rbenv_installed|failed
+  notify: source rbenv_bash
+
+
+
+# https://github.com/leonidas/ansible-rbenv/blob/master/tasks/main.yml
+# https://github.com/zzet/ansible-rbenv-role/blob/master/tasks/main.yml
+- name: Verify if required ruby version is installed
+  shell: 'bash -lc "{{ rbenv_bin}} versions | grep {{ ruby_version }}"'
+  when: not "system" == "{{ ruby_version }}"
+  register: ruby_installed
+  changed_when: false
+  ignore_errors: yes
+
+- name: install ruby {{ruby_version}} unless it is already installed
+  shell: rbenv install {{ ruby_version }}
+  when: ruby_installed|failed
+
+
+- name: Check current global ruby version
+  shell: rbenv global
+  register: ruby_global
+  changed_when: false
+  ignore_errors: yes
+
+
+- name: make ruby {{ ruby_version }} global
+  shell: rbenv global {{ ruby_version }}
+  when: not "system" == "{{ ruby_global }}"
+
+
+
+#####
+
+
+
+- name: Update gems
+  shell: 'bash -lc "{{ rbenv_shim }}gem update --system"'
+
+- name: Install bundler
+  shell: 'bash -lc "{{ rbenv_shim }}gem install bundler"'
+
+
+- name: Install latest version of Rails
+  shell: 'bash -lc "{{ rbenv_shim }}gem install rails"'

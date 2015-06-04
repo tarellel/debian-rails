@@ -1,0 +1,4 @@
+---
+  # Lenght of time before password expires
+  PASS_EXPIRE_DAYS: '180'
+  PASS_MIN_DAYS: '2'

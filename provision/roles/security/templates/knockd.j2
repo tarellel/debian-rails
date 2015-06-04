@@ -1,0 +1,17 @@
+[options]
+      logfile = /var/log/knockd.log
+
+[SSH]
+
+      sequence    = {{ portknocking_ports }}
+
+      seq_timeout = 5
+
+      start_command = ufw allow from %IP% to any port 22
+
+      tcpflags    = syn
+
+      # default keep open for 100 seconds, 30 seconds is more secure to keep port closed
+      #cmd_timeout   = 100
+      cmd_timeout   = 30
+      stop_command  = ufw delete allow from %IP% to any port 22

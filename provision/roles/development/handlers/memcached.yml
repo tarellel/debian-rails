@@ -1,0 +1,11 @@
+---
+  # verbose mode: memcached -vv
+  # daemon mode:  memcached -d
+  # run memcached under a non-privileged user:
+  #   memcached -d -m 2048 -p 11211 -u nobody
+  # sudo /etc/init.d/memcached start
+
+- name: Restart memcached
+  service: name=memcached state=restarted enabled=yes
+  sudo: true
+  #sudo_user: nobody

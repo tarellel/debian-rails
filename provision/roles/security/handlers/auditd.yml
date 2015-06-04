@@ -1,0 +1,4 @@
+---
+  - name: Restart auditd
+    action: service name=auditd state=restarted
+    sudo: true

@@ -1,0 +1,5 @@
+# https://github.com/eduardodeoh/ansible/blob/master/roles/common/tasks/setting_timezone.yml
+---
+  - name: Update server localtime to be set instead of UTC
+    shell: 'sudo ln -nsf /usr/share/zoneinfo/{{ timezone }} /etc/localtime'
+    sudo: true

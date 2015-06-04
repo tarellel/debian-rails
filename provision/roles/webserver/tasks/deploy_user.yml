@@ -1,0 +1,41 @@
+####################
+# Transfer Ruby versions to deployment user
+####################
+#- name: Transfer [ruby] to deploy user
+#  shell: 'cp /home/{{ user }}/.rbenv /home/{{ deploy_username }}/'
+#  sudo: true
+
+- name: Remove deployment_users .bashrc & .profile
+  file:
+    path='/home/{{ deploy_username }}/{{ item }}'
+    state=absent
+  sudo: true
+  with_items:
+    - '.bashrc'
+    - '.profile'
+
+- name: copy ruby and ruby config to {{ deploy_username }}
+  shell: 'cp -r /home/{{ user }}/{{ item }} /home/{{ deploy_username }}/{{ item }}'
+  sudo: true
+  with_items:
+    - '.bashrc'
+    - '.profile'
+    - '.rbenv'
+
+- name: Set bash file permissions for {{ deploy_username }}
+  file:
+    path='/home/{{ deploy_username }}/{{ item }}'
+    owner={{ deploy_username }}
+    group=users
+  sudo: true
+  with_items:
+    - '.bashrc'
+    - '.profile'
+
+- name: Set file permissions for /home/{{ deploy_username }}/.rbenv
+  file:
+    path='/home/{{ deploy_username }}/.rbenv'
+    owner={{ deploy_username }}
+    group=users
+    recurse=yes
+  sudo: true

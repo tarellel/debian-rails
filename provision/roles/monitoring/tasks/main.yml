@@ -1,0 +1,6 @@
+---
+  - name: install htop
+    action: apt name=htop state=present
+    sudo: true
+
+  - include: monit.yml

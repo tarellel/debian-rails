@@ -1,0 +1,22 @@
+---
+  # verify memcached is active and listening:
+  #   netstat -tap | grep memcached
+
+  # verify memcached processes are running
+  #   ps aux | grep memcache
+
+  # view memcached states
+  #   echo "stats settings" | nc localhost 11211
+  - name: Install and config Memcached
+    action: apt name=memcached state=latest
+    sudo: true
+    notify: Restart memcached
+    tags: memcached
+
+
+  ##### Setup and config memcached
+
+
+  # ensure memcached is up and running
+  - name: Memcached | Insure deamon is running correctly
+    service: name=memcached state=started enabled=yes

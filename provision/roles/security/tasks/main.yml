@@ -1,0 +1,67 @@
+#!!! https://github.com/simple10/guides/blob/master/security.md
+#!!!- https://github.com/pjan/the-ansibles
+- include: fail2ban.yml
+#- include: denyhosts.yml
+- include: firewall.yml
+- include: ssh.yml
+- include: knockd.yml   # if port knocking is enabled
+  when: portknocking == true
+
+# system config/security hardening
+- include: sysctl.yml
+- include: host_conf.yml
+#- include: umask.yml
+- include: passwd.yml
+- include: auditd.yml
+
+# Add user to allow logins
+#- include: deploy_user.yml
+
+# secure shared memory, use to prevent process attacks on a shared host
+#- include: fstab.yml
+
+
+#- name: Install recommended srk packages
+#  action: apt name={{item}} state=present
+#  sudo: true
+#  with_items:
+    #- binutils
+#    - 'unhide.rb'
+    #- 'ssl-cert' # https://wiki.debian.org/Self-Signed_Certificate
+
+
+- name: verify rkhunter, etc
+  shell: which rkhunter
+  register: rkhunter_installed
+  changed_when: false
+  ignore_errors: true
+
+
+- name: Install recommended security packages
+  action: apt name={{item}} state=latest
+  sudo: true
+  with_items:
+    - rkhunter
+    - chkrootkit
+    - lynis # security auditing software
+  when: rkhunter_installed|failed
+
+
+
+# ******************************************************************************
+
+
+- include: rkhunter.yml
+  when: rkhunter_installed|failed
+- include: aide.yml
+
+
+# http://blog.zedroot.org/lynis-%E2%80%93-warning-incorrect-permissions-for-file-root-ssh-testfile-7524/
+- name: tighten root .ssh permissions
+  shell: 'chmod 700 /root/.ssh'
+  sudo: true
+
+
+#!!!!!!!!!!!!!!
+# http://plusbryan.com/my-first-5-minutes-on-a-server-or-essential-security-for-linux-servers
+#!!!!!!!!!!!!!!

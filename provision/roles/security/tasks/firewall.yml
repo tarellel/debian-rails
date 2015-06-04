@@ -1,0 +1,70 @@
+#!!!!!- https://github.com/al3x/sovereign/blob/master/roles/common/tasks/ufw.yml
+# !!! https://github.com/jbinto/ansible-ubuntu-rails-server/tree/master/roles/ufw
+# UFW: https://www.digitalocean.com/community/tutorials/how-to-setup-a-firewall-with-ufw-on-an-ubuntu-and-debian-cloud-server
+#http://docs.ansible.com/ufw_module.html
+#!!!- https://github.com/tilsammans/playbook/blob/master/roles/common/tasks/main.yml
+
+- name: Verify if UFW installed
+  shell: which ufw
+  register: ufw_installed
+  ignore_errors: true
+  sudo: true
+
+- name: Install UFW
+  action: apt name=ufw state=latest
+  sudo: true
+  tags: firewall
+  notify: Restart ufw
+  when: ufw_installed|failed
+
+- name: Deny everything and enable UFW
+  ufw: state=enabled policy=deny
+  sudo: true
+  notify: Restart ufw
+  when: ufw_installed|failed
+
+
+#- name: Set firewall rule for DNS
+#  ufw: rule=allow port=domain
+#  sudo: true
+
+- name: Set firewall rules for web traffic
+  ufw: rule=allow port={{ item }} proto=tcp
+  with_items:
+    - http
+    - https
+  sudo: true
+  notify: Restart ufw
+
+# ADD rate limiting to this port
+- name: Open DNS port in firewall
+  #ufw: rule allow=port port=53
+  ufw: rule=allow port=domain direction=out
+  sudo: true
+
+# If portknocking disabled open SSH port
+- name: Open SSH ports in firewall
+  ufw: rule=allow port=ssh proto=tcp
+  sudo: true
+  when: portknocking != true
+  notify: Restart ufw
+
+
+# if using MOSH enable port
+#- name: Set firewall rule for mosh
+#  ufw: rule=allow port=60000:61000 proto=udp
+
+#https://github.com/al3x/sovereign/blob/master/roles/common/tasks/ufw.yml
+#- name: Disable logging (workaround for known bug in Debian 7)
+#  ufw: logging=off
+#  sudo: true
+  ##when: "ansible_lsb['codename'] == 'wheezy' and 'LOGLEVEL=off' not in ufw_config.stdout"
+
+
+# LOAD ufw on boot
+- name: Enable ufw
+  lineinfile: dest=/etc/ufw/ufw.conf
+              regexp="^ENABLED"
+              line="ENABLED=yes"
+  sudo: true
+  notify: Restart ufw

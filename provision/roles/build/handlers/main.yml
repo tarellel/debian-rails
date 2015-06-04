@@ -1,0 +1,4 @@
+---
+  - name: Restart ntp
+    service: name=ntp state=restarted enabled=yes
+    sudo: true
