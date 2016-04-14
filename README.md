@@ -20,6 +20,7 @@ copy id_rsa.pub to the files directory, because ssh is changed to use pubkey aut
 
 ##### Required steps
 
+    # vagrant plugins - https://github.com/mitchellh/vagrant/wiki/Available-Vagrant-Plugins
     # vagrant caching - https://github.com/fgrehm/vagrant-cachier
     #   http://fgrehm.viewdocs.io/vagrant-cachier
     #   https://github.com/fgrehm/vagrant-cachier/blob/master/docs/usage.md
@@ -96,5 +97,3 @@ To use with [DigitalOcean](https://www.digitalocean.com/) use the following comm
 | ruby | Install Ruby, RVM, Rails |
 | security | Harden Linux box, install ufw, ssh, and fail2ban |
 | webserver | Install nginx, Phusion Passenger, and required libraries |
-
-

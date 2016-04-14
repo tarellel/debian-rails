@@ -3,7 +3,6 @@
   - include: timezone.yml
   - include: motd.yml
   - include: inittab.yml
-
   - include: deploy_user.yml
 
 

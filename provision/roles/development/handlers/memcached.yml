@@ -8,4 +8,4 @@
 - name: Restart memcached
   service: name=memcached state=restarted enabled=yes
   sudo: true
-  #sudo_user: nobody
+  # sudo_user: nobody

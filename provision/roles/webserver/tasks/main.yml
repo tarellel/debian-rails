@@ -1,6 +1,5 @@
 ---
 - include: nginx.yml
-#
 - include: deploy_user.yml
 
 # https://github.com/mortik/ansible-nginx-rails/blob/master/tasks/main.yml

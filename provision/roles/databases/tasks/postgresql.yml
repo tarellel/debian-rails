@@ -9,7 +9,6 @@
     ignore_errors: true
     sudo: true
 
-
   # install postgreql
   - name: Install Postgresql
     action: apt name={{item}} state=latest

@@ -29,23 +29,21 @@ Vagrant.configure("2") do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  #config.vm.synced_folder '.', '/vagrant', :disabled => false
+  # config.vm.synced_folder '.', '/vagrant', :disabled => false
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
   config.vm.provider "virtualbox" do |vb|
-  #   # Don't boot with headless mode
-  #   vb.gui = true
-  #   # Use VBoxManage to customize the VM. For example to change memory:
-     vb.customize ["modifyvm", :id, "--memory", "512"]
+    # Don't boot with headless mode
+    # vb.gui = true
+    # Use VBoxManage to customize the VM. For example to change memory:
+    vb.customize ["modifyvm", :id, "--memory", "512"]
   end
   #
   # View the documentation for the provider you're using for more
   # information on available options.
-
-
 
   # http://quyennt.com/system-admin/using-vagrant-ansible-to-automate-development-environment-part-2/
   # config.vm.hostname = "[hostname]" => VM's hostname, will appear as vagrant@[hostname]
@@ -62,13 +60,12 @@ Vagrant.configure("2") do |config|
       # to lock files needed for /var/cache/* operations. All of this can be avoided
       # by using NFSv4 everywhere. Please note that the tcp option is not the default.
     #  mount_options: ['rw', 'vers=3', 'tcp', 'nolock']
-    #}
+    # }
     config.cache.auto_detect = false
     config.cache.enable :apt
     config.cache.enable :gem
-    #config.cache.enable :npm
+    # config.cache.enable :npm
   end
-
 
   # DOCS: http://docs.ansible.com/
   config.vm.provision "ansible" do |ansible|
@@ -82,7 +79,7 @@ Vagrant.configure("2") do |config|
 
     # https://stackoverflow.com/questions/20952689/ansible-ssh-forwarding-doesnt-seem-to-work-with-vagrant/23704069#23704069
     # https://github.com/protobox/protobox/issues/78
-    #ansible.raw_ssh_args = ['-o UserKnownHostsFile=/dev/null']
-    #ansible.verbose  = 'v'
+    # ansible.raw_ssh_args = ['-o UserKnownHostsFile=/dev/null']
+    # ansible.verbose  = 'v'
   end
 end

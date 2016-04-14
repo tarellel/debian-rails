@@ -7,10 +7,8 @@
   sudo: true
   notify: Restart Redis
 
-
 # if want to open up redis to other IP addresses/ as well must adjust bind IPs in /etc/redis/redis.conf
 # https://github.com/slickage/ansible-rails/blob/master/roles/database/tasks/redis.yml
-
 
 # Ensure Redis server is running
 - name: "Ensure Redis server is running"
