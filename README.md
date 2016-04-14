@@ -1,3 +1,5 @@
+**Important note** - This version works best when ran with debian v7.\* (Wheezy). A debian v8.\* (Jessie), version is currently in the works to replace the master branch.
+
 ## Requirements
 
 [Vagrant](http://www.vagrantup.com/) and [Ansible](http://docs.ansible.com/index.html)
